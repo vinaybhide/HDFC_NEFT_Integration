@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<faxml xmlns:xsi="http://www.w3.org/2001/XMLSchemainstance">
+	<header>
+		<extsysname>COAPI</extsysname>
+		<datpost>2022-06-15</datpost>
+		<batchnumext>000001</batchnumext>
+		<idtxn>CO_NEF</idtxn>
+		<codcurr>INR</codcurr>
+		<iduser>APIUser@ELANTA</iduser>
+		<idcust>10054238</idcust>
+		<groupid>FCAT_ELANTA</groupid>
+		<reqdatetime>2022-06-15T14:33:17</reqdatetime>
+	</header>
+	<summary>
+		<orgsumpmt>59000.00</orgsumpmt>
+		<orgcountpmt>01</orgcountpmt>
+	</summary>
+	<paymentlist>
+		<payment>
+			<stanext>01</stanext>
+			<paymentrefno>0029000250</paymentrefno>
+			<CustId>10054238</CustId>
+			<amount>59000.00</amount>
+			<RemitterName>ELANTAS Beck India Ltd.</RemitterName>
+			<RemitterAccount>00010110000182</RemitterAccount>
+			<RemitterAccountType>CA</RemitterAccountType>
+			<BeneIFSCCODE>CITI0000001</BeneIFSCCODE>
+			<BeneAccountType>CA</BeneAccountType>
+			<BeneAccountNumber>00000000000000000000000041131210001</BeneAccountNumber>
+			<BeneName>E CON PACKAGING PVT LTD</BeneName>
+			<RemitInformation_1>TEST5</RemitInformation_1>
+			<codcurr>INR</codcurr>
+			<refstan>01</refstan>
+		</payment>
+	</paymentlist>
+</faxml>
