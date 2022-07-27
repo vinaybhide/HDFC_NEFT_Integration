@@ -185,13 +185,30 @@ namespace TestHDFC
             XmlAttribute idAttr = xmlBeforeSign.CreateAttribute("Id");
             idAttr.Value = idString;
             faxmlNode.Attributes.Append(idAttr);
+            //FOllowing needs to comde from SAP in the input. But for testing updating values here
+            //Scope / IDGROUP 	= FCAT_ELANTA
+            //Cust ID     = 10054238
+            //Account Number  = 00010110000182
+            //API User    = APIUser @ELANTA
 
+            XmlNodeList nodeList = xmlBeforeSign.GetElementsByTagName("iduser");
+
+            if (nodeList.Count > 0)
+            {
+                nodeList[0].InnerText = "APIUser @ELANTA";
+            }
+
+            nodeList = xmlBeforeSign.GetElementsByTagName("groupid");
+
+            if (nodeList.Count > 0)
+            {
+                nodeList[0].InnerText = "FCAT_ELANTA";
+            }
             //add the faxml node to request element
             requestAfterElement.AppendChild(faxmlNode);
             xmlBeforeSign.AppendChild(requestAfterElement);
             //X509Certificate2 cert = new X509Certificate2(pfxcertificateFile, pfxcertificatePassword);
             X509Certificate2 cert = GetCertificateFromPEM_KEY(pfxcertificatePassword);
-
             //RSA prov = ReadPrivateKeyFile();
 
             var signedXml = new SignedXml(xmlBeforeSign); //(xmlBeforeSign.DocumentElement);
@@ -322,7 +339,7 @@ namespace TestHDFC
 
         }
 
-        public static string NewDecryptSignedXML(byte[] encryptedString, byte[] encryptionKey)
+        public string NewDecryptSignedXML(byte[] encryptedString, byte[] encryptionKey)
         {
             using (var provider = new AesCryptoServiceProvider())
             {
@@ -340,7 +357,8 @@ namespace TestHDFC
                         {
                             byte[] decrypted = new byte[encryptedString.Length];
                             var byteCount = cs.Read(decrypted, 0, encryptedString.Length);
-                            return Encoding.UTF8.GetString(decrypted, 0, byteCount);
+                            //return Encoding.UTF8.GetString(decrypted, 0, byteCount);
+                            return _encoder.GetString(decrypted, 0, byteCount);
                         }
                     }
                 }
@@ -381,7 +399,7 @@ namespace TestHDFC
             //Verify
             //Decode
             byte[] decodedData = Convert.FromBase64String(encodedData);
-            if(decodedData.Equals(encryptedData))
+            if (decodedData.Equals(encryptedData))
             {
                 MessageBox.Show("Decoding matches");
             }
@@ -417,7 +435,7 @@ namespace TestHDFC
             string idattrib = "#" + faxmlNode.Attributes["Id"].Value;
 
             if ((signedXml.SignedInfo.References[0] as Reference)?.Uri != idattrib)
-            { 
+            {
                 MessageBox.Show("Check your references!");
             }
 
@@ -425,7 +443,7 @@ namespace TestHDFC
             X509Certificate2 cert = GetCertificateFromPEM_KEY();
             bool isValid = signedXml.CheckSignature(cert, true);
 
-            if(isValid == false)
+            if (isValid == false)
             {
                 MessageBox.Show("Signature verification failed");
             }
@@ -683,7 +701,111 @@ namespace TestHDFC
                     "Scope: " + responseData.Scope.ToString() + Environment.NewLine +
                     "TransactionId: " + responseData.TransactionId.ToString() + Environment.NewLine +
                     "Status" + responseData.Status.ToString();
+
+                if (responseData.Status.ToUpper().Equals("SUCCESS") == true)
+                {
+                    //decode & decrypt key
+                    byte[] decryptedReceivedKey = DecryptDecodeReceivedKey(responseData.GWSymmetricKeyEncryptedValue);
+                    string responseXML = DecryptDecodeReceivedXML(decryptedReceivedKey, responseData.ResponseSignatureEncryptedValue);
+                }
             }
+        }
+
+        /// <summary>
+        /// Method to decode & decrypt GWSymmetricKeyEncryptedValue received in the response of NEFT API call. 
+        /// Following steps need to be doen to get key byte array to be used to decrypt XML payload
+        /// a) Base64 decode the Key GWSymmetricKeyEncryptedValue:
+        /// b) External partner needs to use the private key of their SSL certificate for decryption.
+        /// c) Decrypt the decode value with Partner’s Private key using Algorithm: RSA/ECB/PKCS1Padding
+        ///     After decryption, we get the 32 bytes key, which looks like this:OfpBWSiDeP6kIjbyYFDGu3TnBqxTEpLM
+        /// d) The above value needs to be used as key for decryption of the tag ResponseSignatureEncryptedValue in Step7
+        /// </summary>
+        /// <param name="receivedKey"></param>
+        /// <returns></returns>
+        public byte[] DecryptDecodeReceivedKey(string receivedKey)
+        {
+            byte[] decodedKey = Convert.FromBase64String(receivedKey);
+
+            tbDecodedKey.Text = _encoder.GetString(decodedKey);
+
+            X509Certificate2 cert = GetCertificateFromPEM_KEY();
+
+            RSACryptoServiceProvider csp = new RSACryptoServiceProvider();
+            RSAParameters rsaParam = cert.GetRSAPrivateKey().ExportParameters(true);
+
+            csp.ImportParameters(rsaParam);
+
+            byte[] decryptedKey = csp.Decrypt(decodedKey, false);
+
+            tbDecryptedKey.Text = _encoder.GetString(decryptedKey);
+
+            return decryptedKey;
+        }
+
+        public string DecryptDecodeReceivedXML(byte[] key, string encodedencryptedXML)
+        {
+            string returnStr = string.Empty;
+            byte[] decodedData = Convert.FromBase64String(encodedencryptedXML);
+            tbDecodedXML.Text = _encoder.GetString(decodedData);
+
+            string decryptedXML = NewDecryptSignedXML(decodedData, key);
+
+            tbDecryptedXML.Text = decryptedXML;
+
+            //first remove <response> tag from xml
+            //if (decryptedXML.Contains("<response>"))
+            //{
+            //    decryptedXML.Replace("<response>", "");
+            //}
+            //if (decryptedXML.Contains("</response>"))
+            //{
+            //    decryptedXML.Replace("</response>", "");
+            //}
+
+            //Check signature 
+            XmlDocument xmlSigndDocument = new XmlDocument();
+            xmlSigndDocument.PreserveWhitespace = true;
+            xmlSigndDocument.LoadXml(decryptedXML);
+            var signedXml = new SignedXml(xmlSigndDocument);
+            // double-check the schema
+            // usually we would validate using XPath
+            XmlNodeList signatureElement = xmlSigndDocument.GetElementsByTagName("Signature");
+            if (signatureElement.Count != 1)
+            {
+                MessageBox.Show("Too many signatures");
+            }
+
+            signedXml.LoadXml((XmlElement)signatureElement[0]);
+
+            // validate references here!
+            XmlNode faxmlNode = xmlSigndDocument.SelectSingleNode("//faxml");
+            string idattrib = "#" + faxmlNode.Attributes["Id"].Value;
+
+            if ((signedXml.SignedInfo.References[0] as Reference)?.Uri != idattrib)
+            {
+                MessageBox.Show("Check your references!");
+            }
+
+            //X509Certificate2 cert = new X509Certificate2(pfxcertificateFile, pfxcertificatePassword);
+            X509Certificate2 cert = new X509Certificate2(leafcertificateFile);
+            //X509Certificate2 cert = GetCertificateFromPEM_KEY();
+            bool isValid = signedXml.CheckSignature(cert, true);
+
+            if (isValid == false)
+            {
+                MessageBox.Show("Signature verification failed");
+            }
+            else
+            {
+                MessageBox.Show("Signature verification passed");
+            }
+
+            faxmlNode.Attributes.Remove(faxmlNode.Attributes["Id"]);
+            tbResponseXML.Text = faxmlNode.OuterXml;
+
+            returnStr = faxmlNode.OuterXml;
+
+            return returnStr;
         }
         //public void SignPayloadXml()
         //{
@@ -950,6 +1072,8 @@ namespace TestHDFC
         //}
 
     }
+
+
     internal class OAuthToken
     {
         [JsonProperty("access_token")]
