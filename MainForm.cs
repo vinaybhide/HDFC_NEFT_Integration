@@ -16,6 +16,7 @@ using System.Net.Http.Headers;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.IO;
+using System.Xml.Linq;
 
 namespace TestHDFC
 {
@@ -87,7 +88,7 @@ namespace TestHDFC
 
         String oAuthTokenURL = @"https://api-uat.hdfcbank.com:443/auth/oauth/v2/token?grant_type=client_credentials&scope=FCAT_ELANTA";
         String neftTransferURL = @"https://api-uat.hdfcbank.com:443/API/NEFTPayment";
-        String neftInquiryURL = @"https://api-uat.hdfcbank.com/API/NEFTInquiry";
+        String neftInquiryURL = @"https://api-uat.hdfcbank.com:443/API/NEFTInquiry";
 
         //this is RequestSignatureEncryptedValue
         private byte[] encryptedData;
@@ -99,7 +100,7 @@ namespace TestHDFC
         //this is scope
         String Scope = "FCAT_ELANTAS";
         //this is TransactionId
-        String TransactionId = "1111";
+        String TransactionId = "2323";
         //this is OAuthTokenValue
         OAuthToken oAuthToken;
 
@@ -181,7 +182,12 @@ namespace TestHDFC
             XmlElement requestAfterElement = xmlBeforeSign.CreateElement("request");
 
             //Now get the faxml node from beforesignxml to add id attribute as well as signatureElement
+            //XmlNode faxmlNode = bInquiryMode == false ? xmlBeforeSign.SelectSingleNode("//faxml") : xmlBeforeSign.SelectSingleNode("//faml");
             XmlNode faxmlNode = xmlBeforeSign.SelectSingleNode("//faxml");
+            if(faxmlNode == null)
+            {
+                faxmlNode = xmlBeforeSign.SelectSingleNode("//faml");
+            }
             XmlAttribute idAttr = xmlBeforeSign.CreateAttribute("Id");
             idAttr.Value = idString;
             faxmlNode.Attributes.Append(idAttr);
@@ -432,6 +438,10 @@ namespace TestHDFC
 
             // validate references here!
             XmlNode faxmlNode = xmlSigndDocument.SelectSingleNode("//faxml");
+            if(faxmlNode == null)
+            {
+                faxmlNode = xmlSigndDocument.SelectSingleNode("//faml");
+            }
             string idattrib = "#" + faxmlNode.Attributes["Id"].Value;
 
             if ((signedXml.SignedInfo.References[0] as Reference)?.Uri != idattrib)
@@ -536,22 +546,207 @@ namespace TestHDFC
             tbDecryptedKey.Text = tempdecryptdecodeKey;
         }
 
-        private void btnOpenXMLFile_Click(object sender, EventArgs e)
+        public string ConvertToLower(string filename)
         {
+
+            XDocument doc = XDocument.Load(filename);
+            // also need to change the root element
+            doc.Root.Name = doc.Root.Name.LocalName.ToLower();
+
+            foreach (var element in doc.Descendants().Elements())
+            {
+                element.Name = element.Name.LocalName.ToLower();
+            }
+
+            return doc.ToString();
+        }
+
+        private void btnHexFile_Click(object sender, EventArgs e)
+        {
+            tbData.Text = String.Empty;
+            tbDecodedKey.Text = String.Empty;
+            tbDecodedXML.Text = String.Empty;
+            tbDecryptedKey.Text = String.Empty;
+            tbDecryptedXML.Text = String.Empty;
+            tbEncoded.Text = String.Empty;
+            tbEncodedKey.Text = String.Empty;
+            tbEncrypted.Text = String.Empty;
+            tbEncryptedKey.Text = String.Empty;
+            tbHDFCResponse.Text = String.Empty;
+            tbKey.Text = String.Empty;
+            tbOauthToken.Text = String.Empty;
+            tbResponseXML.Text = String.Empty;
+            tbSignedXml.Text = String.Empty;
+
             OpenFileDialog fileDialog = new OpenFileDialog();
             if (fileDialog.ShowDialog() == DialogResult.OK)
             {
                 string sfileName = fileDialog.FileName;
+
+                //string lowerdXML = ConvertToLower(sfileName);
+                //string inputXML = ConvertHexStringToByteToString(File.ReadAllText(sfileName));
+                string inputXML = "3C3F786D6C2076657273696F6E3D22312E302220656E636F64696E673D227574662D38223F3E3C6661786D6C20786D6C6E733A7873693D22687474703A2F2F7777772E77332E6F72672F323030312F584D4C536368656D61696E7374616E6365223E3C4845414445523E3C4558545359534E414D453E434F4150493C2F4558545359534E414D453E3C444154504F53543E323032312D31312D31313C2F444154504F53543E3C42415443484E554D4558543E303030303030303037373C2F42415443484E554D4558543E3C494454584E3E434F5F4E45463C2F494454584E3E3C434F44435552523E494E523C2F434F44435552523E3C4944555345523E415049557365722040454C414E54413C2F4944555345523E3C4944435553543E31303035343233383C2F4944435553543E3C47524F555049443E464341545F454C414E54413C2F47524F555049443E3C5245514441544554494D453E323032322D30372D32385430393A31353A33353C2F5245514441544554494D453E3C2F4845414445523E3C53554D4D4152593E3C4F524753554D504D543E313C2F4F524753554D504D543E3C4F5247434F554E54504D543E313C2F4F5247434F554E54504D543E3C2F53554D4D4152593E3C5041594D454E544C4953543E3C5041594D454E543E3C5354414E4558543E313C2F5354414E4558543E3C5041594D454E545245464E4F3E4E4546543531353C2F5041594D454E545245464E4F3E3C4355535449443E31303035343233383C2F4355535449443E3C414D4F554E543E313C2F414D4F554E543E3C52454D49545445524E414D453E484446432042616E6B204C74643C2F52454D49545445524E414D453E3C52454D49545445524143434F554E543E303031303131303030303138323C2F52454D49545445524143434F554E543E3C52454D49545445524143434F554E54545950453E31303C2F52454D49545445524143434F554E54545950453E3C52454D49545445525F414444524553535F313E484446432042616E6B204C74642E2052657461696C204173736574733C2F52454D49545445525F414444524553535F313E3C52454D49545445525F414444524553535F323E4368616E646976616C693C2F52454D49545445525F414444524553535F323E3C52454D49545445525F414444524553535F333E4D756D626169202D203430303037323C2F52454D49545445525F414444524553535F333E3C52454D49545445525F414444524553535F342F3E3C42454E4549465343434F44453E43495449303030303030313C2F42454E4549465343434F44453E3C42454E454143434F554E54545950453E31313C2F42454E454143434F554E54545950453E3C42454E454143434F554E544E554D4245523E3034313133313231303030313C2F42454E454143434F554E544E554D4245523E3C42454E454E414D453E5352494E49564153204D4F544F52533C2F42454E454E414D453E3C42454E45414444524553535F312F3E3C42454E45414444524553535F322F3E3C42454E45414444524553535F332F3E3C42454E45414444524553535F342F3E3C52454D4954494E464F524D4154494F4E5F313E415049204254472057424F3C2F52454D4954494E464F524D4154494F4E5F313E3C52454D4954494E464F524D4154494F4E5F322F3E3C52454D4954494E464F524D4154494F4E5F332F3E3C52454D4954494E464F524D4154494F4E5F342F3E3C52454D4954494E464F524D4154494F4E5F352F3E3C52454D4954494E464F524D4154494F4E5F362F3E3C434F4E5441435444455441494C5349442F3E3C434F4E5441435444455441494C5344455441494C2F3E3C434F44435552523E494E523C2F434F44435552523E3C5245465354414E3E323C2F5245465354414E3E3C464F52434544454249542F3E3C54584E444553433E4254472057424F204150493C2F54584E444553433E3C42454E4549442F3E3C454D41494C49443E61406162632E636F6D2C62406162632E636F6D3C2F454D41494C49443E3C414456494345312F3E3C414456494345322F3E3C414456494345332F3E3C414456494345342F3E3C414456494345352F3E3C414456494345362F3E3C414456494345372F3E3C414456494345382F3E3C414456494345392F3E3C41445649434531302F3E3C4144444E4C4649454C44313E54686973206973206164646974696F6E616C206669656C643C2F4144444E4C4649454C44313E3C4144444E4C4649454C44322F3E3C4144444E4C4649454C44332F3E3C4144444E4C4649454C44342F3E3C4144444E4C4649454C44352F3E3C2F5041594D454E543E3C2F5041594D454E544C4953543E3C2F6661786D6C3E";
+
+                inputXML = ConvertHexStringToByteToString(inputXML);
+
+                string compatibleXML = MakeXMLCaseCompatible(inputXML);
+
                 xmlBeforeSign = new XmlDocument();
 
                 // Load an XML file into the XmlDocument object.
                 //xmlBeforeSign.PreserveWhitespace = true;
-                xmlBeforeSign.Load(sfileName);
-                tbData.Text = xmlBeforeSign.InnerXml;
+                xmlBeforeSign.LoadXml(compatibleXML); //xmlBeforeSign.Load(sfileName);
+                tbData.Text = xmlBeforeSign.OuterXml;
             }
         }
 
+        private void btnOpenXMLFile_Click(object sender, EventArgs e)
+        {
+            tbData.Text = String.Empty;
+            tbDecodedKey.Text = String.Empty;
+            tbDecodedXML.Text = String.Empty;
+            tbDecryptedKey.Text = String.Empty;
+            tbDecryptedXML.Text = String.Empty;
+            tbEncoded.Text = String.Empty;
+            tbEncodedKey.Text = String.Empty;
+            tbEncrypted.Text = String.Empty;
+            tbEncryptedKey.Text = String.Empty;
+            tbHDFCResponse.Text = String.Empty;
+            tbKey.Text = String.Empty;
+            tbOauthToken.Text = String.Empty;
+            tbResponseXML.Text = String.Empty;
+            tbSignedXml.Text = String.Empty;
 
+            OpenFileDialog fileDialog = new OpenFileDialog();
+            if (fileDialog.ShowDialog() == DialogResult.OK)
+            {
+                string sfileName = fileDialog.FileName;
+
+                //string lowerdXML = ConvertToLower(sfileName);
+                string inputXML = File.ReadAllText(sfileName);
+
+                string compatibleXML = MakeXMLCaseCompatible(inputXML);
+
+                xmlBeforeSign = new XmlDocument();
+
+                // Load an XML file into the XmlDocument object.
+                //xmlBeforeSign.PreserveWhitespace = true;
+                xmlBeforeSign.LoadXml(compatibleXML); //xmlBeforeSign.Load(sfileName);
+                tbData.Text = xmlBeforeSign.OuterXml;
+            }
+        }
+
+        public string ConvertStringToHex(string xmlPayload)
+        {
+            byte[] ba = Encoding.UTF8.GetBytes(xmlPayload);
+            StringBuilder hex = new StringBuilder(ba.Length * 2);
+            foreach (byte b in ba)
+                hex.AppendFormat("{0:x2}", b);
+            return hex.ToString();
+        }
+        private string ConvertHexStringToByteToString(string hex)
+        {
+            int NumberChars = hex.Length;
+            byte[] bytes = new byte[NumberChars / 2];
+            //for (int i = 0; i < NumberChars; i += 2)
+            //    bytes[i / 2] = Convert.ToByte(hex.Substring(i, 2), 16);
+
+            for (int i = 0; i < bytes.Length; i++)
+            {
+                bytes[i] = Convert.ToByte(hex.Substring(i * 2, 2), 16);
+            }
+
+            UTF8Encoding _encoder = new UTF8Encoding();
+
+            string xmlData = _encoder.GetString(bytes);
+            return xmlData;
+        }
+
+        public string MakeXMLCaseCompatible(string inputXML)
+        {
+            StringBuilder sb = new StringBuilder(inputXML);
+            
+            sb = sb.Replace("FAXML", "faxml");
+
+
+            sb = sb.Replace("HEADER", "header");
+            sb = sb.Replace("EXTSYSNAME", "extsysname");
+            sb = sb.Replace("DATPOST", "datpost");
+            //********************************************************************
+            sb = sb.Replace("BATCHNUMEXT", "batchnumext");
+            sb = sb.Replace("0000000077", "000077");
+            //*********************************************************************
+            sb = sb.Replace("IDTXN", "idtxn");
+            sb = sb.Replace("CODCURR", "codcurr");
+            sb = sb.Replace("IDUSER", "iduser");
+            sb = sb.Replace("IDCUST", "idcust");
+            sb = sb.Replace("GROUPID", "groupid");
+            sb = sb.Replace("REQDATETIME", "reqdatetime");
+
+
+            sb = sb.Replace("SUMMARY", "summary");
+            sb = sb.Replace("ORGSUMPMT", "orgsumpmt");
+            sb = sb.Replace("ORGCOUNTPMT", "orgcountpmt");
+
+            sb = sb.Replace("PAYMENTLIST", "paymentlist");
+            
+            sb = sb.Replace("PAYMENT>", "payment>");
+            sb = sb.Replace("STANEXT", "stanext");
+            sb = sb.Replace("PAYMENTREFNO", "paymentrefno");
+            sb = sb.Replace("CUSTID", "CustId");
+            sb = sb.Replace("AMOUNT", "Amount");
+            sb = sb.Replace("REMITTERNAME", "RemitterName");
+            //************************************************************************
+            sb = sb.Replace("REMITTERACCOUNT>", "RemitterAccount>");
+            sb = sb.Replace("0010110000182", "000010110000182");
+            //************************************************************************
+            sb = sb.Replace("REMITTERACCOUNTTYPE", "RemitterAccountType");
+            sb = sb.Replace("REMITTER_ADDRESS_1", "Remitter_Address_1");
+            sb = sb.Replace("REMITTER_ADDRESS_2", "Remitter_Address_2");
+            sb = sb.Replace("REMITTER_ADDRESS_3", "Remitter_Address_3");
+            sb = sb.Replace("REMITTER_ADDRESS_4", "Remitter_Address_4");
+            sb = sb.Replace("BENEIFSCCODE", "BeneIFSCCODE");
+            sb = sb.Replace("BENEACCOUNTTYPE", "BeneAccountType");
+            sb = sb.Replace("BENEACCOUNTNUMBER", "BeneAccountNumber");
+            sb = sb.Replace("BENENAME", "BeneName");
+            sb = sb.Replace("BENEADDRESS_1", "BeneAddress_1");
+            sb = sb.Replace("BENEADDRESS_2", "BeneAddress_2");
+            sb = sb.Replace("BENEADDRESS_3", "BeneAddress_3");
+            sb = sb.Replace("BENEADDRESS_4", "BeneAddress_4");
+            sb = sb.Replace("REMITINFORMATION_1", "RemitInformation_1");
+            sb = sb.Replace("REMITINFORMATION_2", "RemitInformation_2");
+            sb = sb.Replace("REMITINFORMATION_3", "RemitInformation_3");
+            sb = sb.Replace("REMITINFORMATION_4", "RemitInformation_4");
+            sb = sb.Replace("REMITINFORMATION_5", "RemitInformation_5");
+            sb = sb.Replace("REMITINFORMATION_6", "RemitInformation_6");
+            sb = sb.Replace("CONTACTDETAILSID", "ContactDetailsID");
+            sb = sb.Replace("CONTACTDETAILSDETAIL", "ContactDetailsDETAIL");
+            sb = sb.Replace("CODCURR", "codcurr");
+            sb = sb.Replace("REFSTAN", "refstan");
+            //**************************************************************************
+            sb = sb.Replace("<FORCEDEBIT/>", "<forcedebit>N</forcedebit>");
+            //**************************************************************************
+            sb = sb.Replace("TXNDESC", "txndesc");
+            sb = sb.Replace("BENEID", "beneid");
+            sb = sb.Replace("EMAILID", "emailid");
+            sb = sb.Replace("ADVICE1", "advice1");
+            sb = sb.Replace("ADVICE2", "advice2");
+            sb = sb.Replace("ADVICE3", "advice3");
+            sb = sb.Replace("ADVICE4", "advice4");
+            sb = sb.Replace("ADVICE5", "advice5");
+            sb = sb.Replace("ADVICE6", "advice6");
+            sb = sb.Replace("ADVICE7", "advice7");
+            sb = sb.Replace("ADVICE8", "advice8");
+            sb = sb.Replace("ADVICE9", "advice9");
+            sb = sb.Replace("ADVICE10", "advice10");
+            sb = sb.Replace("ADDNLFIELD1", "addnlfield1");
+            sb = sb.Replace("ADDNLFIELD2", "addnlfield2");
+            sb = sb.Replace("ADDNLFIELD3", "addnlfield3");
+            sb = sb.Replace("ADDNLFIELD4", "addnlfield4");
+            sb = sb.Replace("ADDNLFIELD5", "addnlfield5");
+
+            return sb.ToString();
+        }
         private void btnOAuth_Click(object sender, EventArgs e)
         {
             try
@@ -711,6 +906,61 @@ namespace TestHDFC
             }
         }
 
+        private void btnInquiry_Click(object sender, EventArgs e)
+        {
+            TestHDFC.ResponsePayload responseData;
+
+            var requestPayload = new RequestPayload
+            {
+                RequestSignatureEncryptedValue = encodedData,
+                SymmetricKeyEncryptedValue = encryptedencodedKey,
+                Scope = oAuthToken.Scope,
+                TransactionId = TransactionId,
+                OAuthTokenValue = oAuthToken.AccessToken
+            };
+            // Serialize our concrete class into a JSON String
+            var stringPayload = JsonConvert.SerializeObject(requestPayload);
+
+            // Wrap our JSON inside a StringContent which then can be used by the HttpClient class
+            //var httpContent = new StringContent(stringPayload, Encoding.ASCII, "application/json");
+            var httpContent = new StringContent(stringPayload);
+            //httpContent.Headers.ContentType = new MediaTypeHeaderValue("application/x-www-form-urlencoded");
+            httpContent.Headers.ContentType = new MediaTypeHeaderValue("application/json");
+
+
+            X509Certificate2 cert = new X509Certificate2(pfxcertificateFile, pfxcertificatePassword);
+            //X509Certificate2 cert = new X509Certificate2(pemcertificateFile);
+            HttpClientHandler handler = new HttpClientHandler();
+            handler.ClientCertificates.Add(cert);
+            var client = new HttpClient(handler);
+
+            client.DefaultRequestHeaders.Add("apikey", client_id);
+            // Do the actual request and await the response
+            var httpResponse = client.PostAsync(neftInquiryURL, httpContent).Result;
+            // If the response contains content we want to read it!
+            if (httpResponse.Content != null)
+            {
+                var responseContent = httpResponse.Content.ReadAsStringAsync();
+
+                // From here on you could deserialize the ResponseContent back again to a concrete C# type using Json.Net
+                var jsonContent = httpResponse.Content.ReadAsStringAsync().Result;
+                responseData = JsonConvert.DeserializeObject<TestHDFC.ResponsePayload>(jsonContent);
+
+                tbHDFCResponse.Text = "ResponseSignatureEncryptedValue: " + responseData.ResponseSignatureEncryptedValue.ToString() + Environment.NewLine +
+                    "GWSymmetricKeyEncryptedValue: " + responseData.GWSymmetricKeyEncryptedValue.ToString() + Environment.NewLine +
+                    "Scope: " + responseData.Scope.ToString() + Environment.NewLine +
+                    "TransactionId: " + responseData.TransactionId.ToString() + Environment.NewLine +
+                    "Status" + responseData.Status.ToString();
+
+                if (responseData.Status.ToUpper().Equals("SUCCESS") == true)
+                {
+                    //decode & decrypt key
+                    byte[] decryptedReceivedKey = DecryptDecodeReceivedKey(responseData.GWSymmetricKeyEncryptedValue);
+                    string responseXML = DecryptDecodeReceivedXML(decryptedReceivedKey, responseData.ResponseSignatureEncryptedValue);
+                }
+            }
+        }
+
         /// <summary>
         /// Method to decode & decrypt GWSymmetricKeyEncryptedValue received in the response of NEFT API call. 
         /// Following steps need to be doen to get key byte array to be used to decrypt XML payload
@@ -779,6 +1029,10 @@ namespace TestHDFC
 
             // validate references here!
             XmlNode faxmlNode = xmlSigndDocument.SelectSingleNode("//faxml");
+            if(faxmlNode == null)
+            {
+                faxmlNode = xmlSigndDocument.SelectSingleNode("//faml");
+            }
             string idattrib = "#" + faxmlNode.Attributes["Id"].Value;
 
             if ((signedXml.SignedInfo.References[0] as Reference)?.Uri != idattrib)
@@ -807,6 +1061,8 @@ namespace TestHDFC
 
             return returnStr;
         }
+
+
         //public void SignPayloadXml()
         //{
         //    try

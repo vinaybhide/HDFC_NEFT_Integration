@@ -62,18 +62,20 @@
             this.tbDecryptedXML = new System.Windows.Forms.TextBox();
             this.label14 = new System.Windows.Forms.Label();
             this.tbResponseXML = new System.Windows.Forms.TextBox();
+            this.btnInquiry = new System.Windows.Forms.Button();
+            this.btnHexFile = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // tbKey
             // 
             this.tbKey.Location = new System.Drawing.Point(170, 368);
             this.tbKey.Name = "tbKey";
-            this.tbKey.Size = new System.Drawing.Size(386, 31);
+            this.tbKey.Size = new System.Drawing.Size(386, 27);
             this.tbKey.TabIndex = 1;
             // 
             // btnEncryptEncode
             // 
-            this.btnEncryptEncode.Location = new System.Drawing.Point(273, 12);
+            this.btnEncryptEncode.Location = new System.Drawing.Point(359, 12);
             this.btnEncryptEncode.Name = "btnEncryptEncode";
             this.btnEncryptEncode.Size = new System.Drawing.Size(141, 29);
             this.btnEncryptEncode.TabIndex = 4;
@@ -104,13 +106,13 @@
             this.label2.AutoSize = true;
             this.label2.Location = new System.Drawing.Point(3, 49);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(136, 25);
+            this.label2.Size = new System.Drawing.Size(107, 20);
             this.label2.TabIndex = 7;
             this.label2.Text = "Source XML:";
             // 
             // btnEncryptGeneratedKey
             // 
-            this.btnEncryptGeneratedKey.Location = new System.Drawing.Point(420, 12);
+            this.btnEncryptGeneratedKey.Location = new System.Drawing.Point(506, 12);
             this.btnEncryptGeneratedKey.Name = "btnEncryptGeneratedKey";
             this.btnEncryptGeneratedKey.Size = new System.Drawing.Size(377, 29);
             this.btnEncryptGeneratedKey.TabIndex = 10;
@@ -120,7 +122,7 @@
             // 
             // btnSign
             // 
-            this.btnSign.Location = new System.Drawing.Point(164, 12);
+            this.btnSign.Location = new System.Drawing.Point(250, 12);
             this.btnSign.Name = "btnSign";
             this.btnSign.Size = new System.Drawing.Size(103, 29);
             this.btnSign.TabIndex = 11;
@@ -130,7 +132,7 @@
             // 
             // btnOpenXMLFile
             // 
-            this.btnOpenXMLFile.Location = new System.Drawing.Point(29, 12);
+            this.btnOpenXMLFile.Location = new System.Drawing.Point(8, 12);
             this.btnOpenXMLFile.Name = "btnOpenXMLFile";
             this.btnOpenXMLFile.Size = new System.Drawing.Size(129, 29);
             this.btnOpenXMLFile.TabIndex = 12;
@@ -143,7 +145,7 @@
             this.label4.AutoSize = true;
             this.label4.Location = new System.Drawing.Point(852, 49);
             this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(135, 25);
+            this.label4.Size = new System.Drawing.Size(105, 20);
             this.label4.TabIndex = 13;
             this.label4.Text = "Signed XML:";
             // 
@@ -170,7 +172,7 @@
             this.label5.AutoSize = true;
             this.label5.Location = new System.Drawing.Point(712, 207);
             this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(503, 25);
+            this.label5.Size = new System.Drawing.Size(391, 20);
             this.label5.TabIndex = 16;
             this.label5.Text = "Encoded XML (RequestSignatureEncryptedValue) :";
             // 
@@ -179,7 +181,7 @@
             this.label3.AutoSize = true;
             this.label3.Location = new System.Drawing.Point(3, 374);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(161, 25);
+            this.label3.Size = new System.Drawing.Size(127, 20);
             this.label3.TabIndex = 17;
             this.label3.Text = "Symmetric Key:";
             // 
@@ -187,14 +189,14 @@
             // 
             this.tbEncodedKey.Location = new System.Drawing.Point(1150, 365);
             this.tbEncodedKey.Name = "tbEncodedKey";
-            this.tbEncodedKey.Size = new System.Drawing.Size(367, 31);
+            this.tbEncodedKey.Size = new System.Drawing.Size(367, 27);
             this.tbEncodedKey.TabIndex = 18;
             // 
             // tbEncryptedKey
             // 
             this.tbEncryptedKey.Location = new System.Drawing.Point(685, 368);
             this.tbEncryptedKey.Name = "tbEncryptedKey";
-            this.tbEncryptedKey.Size = new System.Drawing.Size(350, 31);
+            this.tbEncryptedKey.Size = new System.Drawing.Size(350, 27);
             this.tbEncryptedKey.TabIndex = 19;
             // 
             // label1
@@ -202,7 +204,7 @@
             this.label1.AutoSize = true;
             this.label1.Location = new System.Drawing.Point(564, 371);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(115, 25);
+            this.label1.Size = new System.Drawing.Size(89, 20);
             this.label1.TabIndex = 20;
             this.label1.Text = "Encrypted:";
             // 
@@ -211,7 +213,7 @@
             this.label6.AutoSize = true;
             this.label6.Location = new System.Drawing.Point(1041, 371);
             this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(103, 25);
+            this.label6.Size = new System.Drawing.Size(79, 20);
             this.label6.TabIndex = 21;
             this.label6.Text = "Encoded:";
             // 
@@ -220,13 +222,13 @@
             this.label7.AutoSize = true;
             this.label7.Location = new System.Drawing.Point(25, 207);
             this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(171, 25);
+            this.label7.Size = new System.Drawing.Size(134, 20);
             this.label7.TabIndex = 22;
             this.label7.Text = "Encrypted XML :";
             // 
             // btnOAuth
             // 
-            this.btnOAuth.Location = new System.Drawing.Point(803, 12);
+            this.btnOAuth.Location = new System.Drawing.Point(889, 12);
             this.btnOAuth.Name = "btnOAuth";
             this.btnOAuth.Size = new System.Drawing.Size(189, 29);
             this.btnOAuth.TabIndex = 23;
@@ -248,17 +250,17 @@
             this.label8.AutoSize = true;
             this.label8.Location = new System.Drawing.Point(8, 412);
             this.label8.Name = "label8";
-            this.label8.Size = new System.Drawing.Size(156, 25);
+            this.label8.Size = new System.Drawing.Size(120, 20);
             this.label8.TabIndex = 25;
             this.label8.Text = "OAuth2 Token:";
             // 
             // btnCallHDFCApi
             // 
-            this.btnCallHDFCApi.Location = new System.Drawing.Point(998, 12);
+            this.btnCallHDFCApi.Location = new System.Drawing.Point(1084, 12);
             this.btnCallHDFCApi.Name = "btnCallHDFCApi";
             this.btnCallHDFCApi.Size = new System.Drawing.Size(189, 29);
             this.btnCallHDFCApi.TabIndex = 26;
-            this.btnCallHDFCApi.Text = "Call HDFC API";
+            this.btnCallHDFCApi.Text = "Call HDFC NEFT";
             this.btnCallHDFCApi.UseVisualStyleBackColor = true;
             this.btnCallHDFCApi.Click += new System.EventHandler(this.btnCallHDFCApi_Click);
             // 
@@ -275,7 +277,7 @@
             // 
             this.tbDecryptedKey.Location = new System.Drawing.Point(729, 494);
             this.tbDecryptedKey.Name = "tbDecryptedKey";
-            this.tbDecryptedKey.Size = new System.Drawing.Size(386, 31);
+            this.tbDecryptedKey.Size = new System.Drawing.Size(386, 27);
             this.tbDecryptedKey.TabIndex = 28;
             // 
             // label9
@@ -283,7 +285,7 @@
             this.label9.AutoSize = true;
             this.label9.Location = new System.Drawing.Point(564, 408);
             this.label9.Name = "label9";
-            this.label9.Size = new System.Drawing.Size(115, 25);
+            this.label9.Size = new System.Drawing.Size(89, 20);
             this.label9.TabIndex = 29;
             this.label9.Text = "Response:";
             // 
@@ -292,7 +294,7 @@
             this.label10.AutoSize = true;
             this.label10.Location = new System.Drawing.Point(12, 491);
             this.label10.Name = "label10";
-            this.label10.Size = new System.Drawing.Size(147, 25);
+            this.label10.Size = new System.Drawing.Size(114, 20);
             this.label10.TabIndex = 30;
             this.label10.Text = "Decoded Key:";
             // 
@@ -300,7 +302,7 @@
             // 
             this.tbDecodedKey.Location = new System.Drawing.Point(170, 494);
             this.tbDecodedKey.Name = "tbDecodedKey";
-            this.tbDecodedKey.Size = new System.Drawing.Size(386, 31);
+            this.tbDecodedKey.Size = new System.Drawing.Size(386, 27);
             this.tbDecodedKey.TabIndex = 31;
             // 
             // label11
@@ -308,7 +310,7 @@
             this.label11.AutoSize = true;
             this.label11.Location = new System.Drawing.Point(564, 497);
             this.label11.Name = "label11";
-            this.label11.Size = new System.Drawing.Size(159, 25);
+            this.label11.Size = new System.Drawing.Size(124, 20);
             this.label11.TabIndex = 32;
             this.label11.Text = "Decrypted Key:";
             // 
@@ -317,7 +319,7 @@
             this.label12.AutoSize = true;
             this.label12.Location = new System.Drawing.Point(8, 541);
             this.label12.Name = "label12";
-            this.label12.Size = new System.Drawing.Size(160, 25);
+            this.label12.Size = new System.Drawing.Size(126, 20);
             this.label12.TabIndex = 33;
             this.label12.Text = "Decoded XML :";
             // 
@@ -335,7 +337,7 @@
             this.label13.AutoSize = true;
             this.label13.Location = new System.Drawing.Point(773, 541);
             this.label13.Name = "label13";
-            this.label13.Size = new System.Drawing.Size(172, 25);
+            this.label13.Size = new System.Drawing.Size(136, 20);
             this.label13.TabIndex = 35;
             this.label13.Text = "Decrypted XML :";
             // 
@@ -353,7 +355,7 @@
             this.label14.AutoSize = true;
             this.label14.Location = new System.Drawing.Point(8, 707);
             this.label14.Name = "label14";
-            this.label14.Size = new System.Drawing.Size(171, 25);
+            this.label14.Size = new System.Drawing.Size(134, 20);
             this.label14.TabIndex = 37;
             this.label14.Text = "Response XML :";
             // 
@@ -366,11 +368,33 @@
             this.tbResponseXML.Size = new System.Drawing.Size(999, 146);
             this.tbResponseXML.TabIndex = 38;
             // 
+            // btnInquiry
+            // 
+            this.btnInquiry.Location = new System.Drawing.Point(1315, 12);
+            this.btnInquiry.Name = "btnInquiry";
+            this.btnInquiry.Size = new System.Drawing.Size(189, 29);
+            this.btnInquiry.TabIndex = 39;
+            this.btnInquiry.Text = "Call HDFC Inquiry";
+            this.btnInquiry.UseVisualStyleBackColor = true;
+            this.btnInquiry.Click += new System.EventHandler(this.btnInquiry_Click);
+            // 
+            // btnHexFile
+            // 
+            this.btnHexFile.Location = new System.Drawing.Point(143, 12);
+            this.btnHexFile.Name = "btnHexFile";
+            this.btnHexFile.Size = new System.Drawing.Size(101, 29);
+            this.btnHexFile.TabIndex = 40;
+            this.btnHexFile.Text = "Open HEX";
+            this.btnHexFile.UseVisualStyleBackColor = true;
+            this.btnHexFile.Click += new System.EventHandler(this.btnHexFile_Click);
+            // 
             // MainForm
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(12F, 25F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(10F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1706, 877);
+            this.Controls.Add(this.btnHexFile);
+            this.Controls.Add(this.btnInquiry);
             this.Controls.Add(this.tbResponseXML);
             this.Controls.Add(this.label14);
             this.Controls.Add(this.tbDecryptedXML);
@@ -449,6 +473,8 @@
         private System.Windows.Forms.TextBox tbDecryptedXML;
         private System.Windows.Forms.Label label14;
         private System.Windows.Forms.TextBox tbResponseXML;
+        private System.Windows.Forms.Button btnInquiry;
+        private System.Windows.Forms.Button btnHexFile;
     }
 }
 
